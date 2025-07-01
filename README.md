@@ -1,97 +1,111 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# MeetMap
+## MeetMap é um app mobile em React Native (CLI) para conectar pessoas próximas via geolocalização, exibir um mapa com usuários, permitir favoritos e interação social. Aplicação usa o firebase como repositório dos dados, usuário faz inscrição com nome, email, senha e foto, a idéia é centralizar todos os usuarios em uma tela geral onde cada usuário podem ver a localização de cada m, podendo favoritar.
 
-# Getting Started
+🚀 Tecnologias e Bibliotecas
+✅ React Native CLI (TypeScript)
+✅ Firebase (Auth + Firestore)
+✅ react-native-maps – exibe mapa e marcadores
+✅ @rneui/themed – Material UI compatível para React Native
+✅ react-native-image-picker – seleção de foto local
+✅ react-native-permissions – permissões de geolocalização
+✅ react-native-community/geolocation – localização do dispositivo
+✅ react-navigation – navegação entre telas
+✅ Haversine Formula – cálculo de distância geográfica
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+📦 Instalação
+1. Clone o repositório
 
-## Step 1: Start Metro
-
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
-
-To start the Metro dev server, run the following command from the root of your React Native project:
-
-```sh
-# Using npm
-npm start
-
-# OR using Yarn
-yarn start
+```bash
+git clone https://github.com/reinaldoper/meetmap.git
+cd meetmap
 ```
 
-## Step 2: Build and run your app
+2. Instale dependências
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
+```bash
+yarn install 
+#ou 
+npm install
 ```
 
-### iOS
+3. Configuração do Firebase
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+- Crie um projeto no Firebase.
+- Gere o arquivo google-services.json.
+- Coloque o arquivo em:
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
+```bash
+android/app/google-services.json
 ```
 
-Then, and every time you update your native dependencies, run:
+- Habilite:
+- Authentication → Email/Password
+- Firestore Database → regras abertas para testes (ou configure regras seguras)
 
-```sh
-bundle exec pod install
+4. Permissões Android
+No arquivo AndroidManifest.xml:
+
+```bash
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+<uses-permission android:name="android.permission.CAMERA" />
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+▶️ Rodando o app localmente
+Android
+Conecte seu celular ou emulador Android, então:
 
-```sh
-# Using npm
-npm run ios
+```bash
+npm run start
 
-# OR using Yarn
-yarn ios
+&& 
+
+
+npx react-native run-android
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+📱 Gerar APK
+Gere o APK release:
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+```bash
+cd android
+./gradlew assembleRelease
+```
 
-## Step 3: Modify your app
+APK estará em:
 
-Now that you have successfully run the app, let's make changes!
+```bash
+android/app/build/outputs/apk/release/app-release.apk
+```
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+🗺 Funcionalidades
+✅ Tela de Splash com redirecionamento automático se usuário estiver logado
+✅ Cadastro de usuário com foto local
+✅ Login/Logout via Firebase
+✅ Mapa com localização do usuário + outros usuários
+✅ Exibição de distância entre usuários
+✅ Favoritar usuários
+✅ Tela de favoritos para gerenciar favoritos
+✅ UI moderna com Material UI (RNE UI Themed)
+✅ Validação de email e senhas
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+📚 Scripts úteis
+- Limpar cache do metro bundler:
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+```bash
+npx react-native start --reset-cache
+```
 
-## Congratulations! :tada:
+- Rodar apenas metro bundler:
 
-You've successfully run and modified your React Native App. :partying_face:
 
-### Now what?
+```bash
+npx react-native start
+```
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+🙌 Créditos
+Feito com ❤️ por Reinaldo Pereira.
 
-# Troubleshooting
+MeetMap – conecte pessoas através do mapa. 🚀
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
