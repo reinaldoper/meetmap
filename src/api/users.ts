@@ -5,24 +5,67 @@ export async function register(
   password: string,
   name: string,
   photoURL: string,
-  latitude: number = 0,
-  longitude: number = 0,
+  latitude?: number,
+  longitude?: number,
 ) {
   const userCredential = await auth().createUserWithEmailAndPassword(
     email,
     password,
   );
 
-  await firestore().collection('users').doc(userCredential.user.uid).set({
-    name,
-    email,
-    photoURL,
-    uid: userCredential.user.uid,
-    location: {latitude, longitude},
-    createdAt: firestore.FieldValue.serverTimestamp(),
-  });
+  try {
+    await firestore()
+      .collection('users')
+      .doc(userCredential.user.uid)
+      .set({
+        name,
+        photoURL,
+        uid: userCredential.user.uid,
+        ...(latitude !== 0 && longitude !== 0
+          ? {location: {latitude, longitude}}
+          : {}),
+        createdAt: firestore.FieldValue.serverTimestamp(),
+      });
+  } catch (error) {
+    console.error('Erro ao criar usuário no Firestore:', error);
+    throw error;
+  }
 
   return userCredential.user;
+}
+
+export async function updateUserLocation(latitude: number, longitude: number) {
+  const user = auth().currentUser;
+  if (!user) {
+    throw new Error('Usuário não está autenticado.');
+  }
+
+  if (
+    latitude === 0 ||
+    longitude === 0 ||
+    latitude === undefined ||
+    longitude === undefined
+  ) {
+    throw new Error('Latitude e longitude inválidas.');
+  }
+
+  try {
+    await firestore()
+      .collection('users')
+      .doc(user.uid)
+      .set(
+        {
+          location: {
+            latitude,
+            longitude,
+          },
+        },
+        { merge: true }
+      );
+  } catch (error) {
+    console.error('Erro ao atualizar localização:', error);
+    throw error;
+  }
 }
 
 export async function login(email: string, password: string) {
@@ -47,8 +90,17 @@ export async function logout() {
 }
 
 export async function getUsers() {
+  const user = auth().currentUser;
   const snapshot = await firestore().collection('users').get();
-  return snapshot;
+
+  return snapshot.docs.map(doc => {
+    const data = doc.data();
+    return {
+      ...data,
+      uid: doc.id,
+      location: data.location || null,
+    };
+  }).filter(userData => userData.uid !== user?.uid);
 }
 
 export function CurrentUser() {

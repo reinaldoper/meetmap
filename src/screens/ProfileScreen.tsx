@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Alert, ScrollView } from 'react-native';
-import { Avatar, Text, Button, Card } from '@rneui/themed';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../services/types';
-import { User } from '../services/types';
-import { CurrentUser, CurrentUserUuid, logout } from '../api/users';
+import React, {useEffect, useState} from 'react';
+import {View, StyleSheet, Alert, ScrollView} from 'react-native';
+import {Avatar, Text, Button, Card} from '@rneui/themed';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {RootStackParamList, User} from '../services/types';
+import {CurrentUser, CurrentUserUuid, logout} from '../api/users';
 
 type ProfileScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -15,7 +14,7 @@ type Props = {
   navigation: ProfileScreenNavigationProp;
 };
 
-export default function ProfileScreen({ navigation }: Props) {
+export default function ProfileScreen({navigation}: Props) {
   const [userData, setUserData] = useState<User | null>(null);
 
   useEffect(() => {
@@ -29,23 +28,20 @@ export default function ProfileScreen({ navigation }: Props) {
     const fetchUser = async () => {
       try {
         const doc = await CurrentUserUuid(currentUser.uid);
-        if (doc) {
-          setUserData(doc.data() as User);
-        } else {
-          Alert.alert('Usuário não encontrado no banco');
-        }
+        setUserData(doc.data() as User);
       } catch (error) {
-        console.log(error);
+        console.error('Erro ao buscar usuário:', error);
+        Alert.alert('Erro ao buscar usuário');
       }
     };
 
     fetchUser();
-  }, [navigation]);
+  }, [navigation, userData]);
 
   const handleLogout = async () => {
     try {
       await logout();
-      navigation.navigate('Login');
+      navigation.navigate('Home');
     } catch (error: any) {
       console.log(error);
       Alert.alert(error.message);
@@ -60,18 +56,9 @@ export default function ProfileScreen({ navigation }: Props) {
         {userData ? (
           <>
             <View style={styles.center}>
-              <Avatar
-                source={{ uri: userData.photoURL }}
-                rounded
-                size="xlarge"
-              />
+              <Avatar source={{uri: userData.photoURL}} rounded size="xlarge" />
               <Text style={styles.name}>{userData.name}</Text>
               <Text>{userData.email}</Text>
-              {userData.location && (
-                <Text style={styles.location}>
-                  Localização: {userData.location.latitude.toFixed(4)}, {userData.location.longitude.toFixed(4)}
-                </Text>
-              )}
             </View>
           </>
         ) : (

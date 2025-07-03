@@ -1,25 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Alert, Text, Dimensions } from 'react-native';
-import MapView, { Marker, Callout } from 'react-native-maps';
-import { getUsers, addFavorite } from '../api/users';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../services/types';
+import React, {useEffect, useState} from 'react';
+import {View, StyleSheet, Alert, Text, Dimensions} from 'react-native';
+import MapView, {Marker, Callout} from 'react-native-maps';
+import {getUsers, addFavorite, updateUserLocation} from '../api/users';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {RootStackParamList} from '../services/types';
 import * as Permissions from 'react-native-permissions';
 import Geolocation from '@react-native-community/geolocation';
-import { Avatar, Button } from '@rneui/themed';
-import { User } from '../services/types';
-import { haversineDistance } from '../services/funcs';
+import {Avatar, Button} from '@rneui/themed';
+import {User} from '../services/types';
+import {haversineDistance} from '../services/funcs';
 
-type MapScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  'Map'
->;
+type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 
 type Props = {
   navigation: MapScreenNavigationProp;
 };
 
-export default function MapScreen({ navigation }: Props) {
+export default function MapScreen({navigation}: Props) {
   const [users, setUsers] = useState<User[]>([]);
   const [myLocation, setMyLocation] = useState<{
     latitude: number;
@@ -30,7 +27,7 @@ export default function MapScreen({ navigation }: Props) {
     (async () => {
       try {
         const permission = await Permissions.request(
-          Permissions.PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION
+          Permissions.PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION,
         );
         if (permission !== Permissions.RESULTS.GRANTED) {
           Alert.alert('Permissão negada para acessar localização.');
@@ -38,22 +35,28 @@ export default function MapScreen({ navigation }: Props) {
         }
 
         Geolocation.getCurrentPosition(
-          (position) => {
-            const { latitude, longitude } = position.coords;
-            setMyLocation({ latitude, longitude });
+          async position => {
+            const {latitude, longitude} = position.coords;
+            await updateUserLocation(latitude, longitude);
+            setMyLocation({latitude, longitude});
           },
-          (error) => {
+          error => {
             console.log(error);
             Alert.alert('Erro ao pegar localização:', error.message);
           },
-          { enableHighAccuracy: true }
+          {enableHighAccuracy: true},
         );
-
         const snapshot = await getUsers();
         const usersData: User[] = [];
-        snapshot.forEach((doc) => {
-          const data = doc.data() as User;
-          if (data.location) {
+        snapshot.forEach(doc => {
+          const data = doc as User;
+          if (
+            data.location &&
+            typeof data.location.latitude === 'number' &&
+            typeof data.location.longitude === 'number' &&
+            data.location.latitude !== 0 &&
+            data.location.longitude !== 0
+          ) {
             usersData.push(data);
           }
         });
@@ -84,16 +87,15 @@ export default function MapScreen({ navigation }: Props) {
             latitudeDelta: 0.05,
             longitudeDelta: 0.05,
           }}
-          showsUserLocation={true}
-        >
-          {users.map((user) => {
+          showsUserLocation={true}>
+          {users.map(user => {
             let distanceStr = '';
             if (myLocation && user.location) {
               const distance = haversineDistance(
                 myLocation.latitude,
                 myLocation.longitude,
                 user.location.latitude,
-                user.location.longitude
+                user.location.longitude,
               );
               distanceStr = `${distance.toFixed(2)} km de distância`;
             }
@@ -104,12 +106,11 @@ export default function MapScreen({ navigation }: Props) {
                 coordinate={{
                   latitude: user.location.latitude,
                   longitude: user.location.longitude,
-                }}
-              >
+                }}>
                 <Callout>
                   <View style={styles.callout}>
                     <Avatar
-                      source={{ uri: user.photoURL }}
+                      source={{uri: user.photoURL}}
                       rounded
                       size={60}
                       containerStyle={styles.avatar}
@@ -130,7 +131,7 @@ export default function MapScreen({ navigation }: Props) {
           })}
         </MapView>
       ) : (
-        <Text>Carregando mapa...</Text>
+        <Text style={styles.text}>Carregando mapa...</Text>
       )}
       <Button
         title="Voltar para Home"
@@ -163,5 +164,13 @@ const styles = StyleSheet.create({
   },
   favoriteButton: {
     marginTop: 8,
+  },
+  text: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginVertical: 8,
+    color: '#333',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

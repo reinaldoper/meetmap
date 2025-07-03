@@ -9,36 +9,42 @@ export default function FavoritesScreen() {
   const [favorites, setFavorites] = useState<User[]>([]);
 
   useEffect(() => {
-  const fetchFavorites = async () => {
-    try {
-      const favDoc = await favoritesUsers();
-      const favIds: string[] = favDoc ? favDoc.data()?.favorites || [] : [];
+    const fetchFavorites = async () => {
+      try {
+        const favDoc = await favoritesUsers();
 
-      if (favIds.length === 0) {
-        setFavorites([]);
-        return;
+        let favIds: string[] = [];
+
+        if (favDoc?.exists) {
+          favIds = favDoc.data()?.favorites || [];
+        }
+
+        if (favIds.length === 0) {
+          setFavorites([]);
+          return;
+        }
+
+        const userDocs = await Promise.all(
+          favIds
+            .filter((id) => typeof id === 'string' && id.trim() !== '')
+            .map((id) =>
+              firestore().collection('users').doc(id).get()
+            )
+        );
+
+        const favUsers = userDocs
+          .filter(doc => doc.exists)
+          .map(doc => doc.data() as User);
+
+        setFavorites(favUsers);
+      } catch (e) {
+        console.error(e);
+        Alert.alert('Erro ao buscar favoritos');
       }
+    };
 
-      const userDocs = await Promise.all(
-        favIds.map((id) =>
-          firestore().collection('users').doc(id).get()
-        )
-      );
-
-      const favUsers = userDocs
-        .filter(doc => doc.exists)
-        .map(doc => doc.data() as User);
-
-      setFavorites(favUsers);
-    } catch (e) {
-      console.error(e);
-      Alert.alert('Erro ao buscar favoritos');
-    }
-  };
-
-  fetchFavorites();
-}, []);
-
+    fetchFavorites();
+  }, []);
 
   const removeFavorite = async (uidToRemove: string) => {
     try {
@@ -62,7 +68,6 @@ export default function FavoritesScreen() {
               <Avatar source={{ uri: user.photoURL }} rounded size="medium" />
               <View style={styles.info}>
                 <Text style={styles.name}>{user.name}</Text>
-                <Text>{user.email}</Text>
               </View>
             </View>
             <Button

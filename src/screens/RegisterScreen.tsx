@@ -55,8 +55,11 @@ export default function RegisterScreen({ navigation }: Props) {
         Alert.alert('Por favor, preencha todos os campos obrigatórios.');
         return;
       }
-      await register(email, password, name, photoURL);
-      navigation.navigate('Login');
+      const user = await register(email, password, name, photoURL);
+      if (user.displayName) {
+        Alert.alert('Cadastro realizado com sucesso!');
+        navigation.navigate('Login');
+      }
     } catch (error: any) {
       console.log(error);
       Alert.alert(error.message);

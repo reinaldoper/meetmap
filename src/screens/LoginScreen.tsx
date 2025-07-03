@@ -25,7 +25,7 @@ export default function LoginScreen({ navigation }: Props) {
   const handleLogin = async () => {
     try {
       setLoading(true);
-      if (!email || password.length >= 6) {
+      if (!email || password.length < 6) {
         Alert.alert('Por favor, preencha todos os campos obrigatórios.');
         return;
       }
@@ -33,8 +33,11 @@ export default function LoginScreen({ navigation }: Props) {
         Alert.alert('Email inválido. Por favor, verifique o formato do email.');
         return;
       }
-      await login(email, password);
-      Alert.alert('Login realizado!');
+      const user = await login(email, password);
+      if (user.uid) {
+        Alert.alert('Login realizado com sucesso!');
+        navigation.navigate('Home');
+      }
     } catch (error: any) {
       console.log(error);
       Alert.alert(error.message);

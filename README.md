@@ -1,6 +1,11 @@
 # MeetMap
 ## MeetMap é um app mobile em React Native (CLI) para conectar pessoas próximas via geolocalização, exibir um mapa com usuários, permitir favoritos e interação social. Aplicação usa o firebase como repositório dos dados, usuário faz inscrição com nome, email, senha e foto, a idéia é centralizar todos os usuarios em uma tela geral onde cada usuário podem ver a localização de cada m, podendo favoritar.
 
+
+---
+
+
+
 🚀 Tecnologias e Bibliotecas
 ✅ React Native CLI (TypeScript)
 ✅ Firebase (Auth + Firestore)
@@ -12,6 +17,11 @@
 ✅ react-navigation – navegação entre telas
 ✅ Haversine Formula – cálculo de distância geográfica
 
+
+---
+
+
+
 📦 Instalação
 1. Clone o repositório
 
@@ -20,6 +30,8 @@ git clone https://github.com/reinaldoper/meetmap.git
 cd meetmap
 ```
 
+
+
 2. Instale dependências
 
 ```bash
@@ -27,6 +39,8 @@ yarn install
 #ou 
 npm install
 ```
+
+
 
 3. Configuração do Firebase
 
@@ -79,6 +93,9 @@ APK estará em:
 android/app/build/outputs/apk/release/app-release.apk
 ```
 
+---
+
+
 🗺 Funcionalidades
 ✅ Tela de Splash com redirecionamento automático se usuário estiver logado
 ✅ Cadastro de usuário com foto local
@@ -89,6 +106,11 @@ android/app/build/outputs/apk/release/app-release.apk
 ✅ Tela de favoritos para gerenciar favoritos
 ✅ UI moderna com Material UI (RNE UI Themed)
 ✅ Validação de email e senhas
+
+
+---
+
+
 
 📚 Scripts úteis
 - Limpar cache do metro bundler:

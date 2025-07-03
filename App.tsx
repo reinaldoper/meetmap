@@ -9,6 +9,7 @@ import { RootStackParamList } from './src/services/types';
 import HomeScreen from './src/screens/Home';
 import MapScreen from './src/screens/MapScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
+import FavoritesScreen from './src/screens/FavoritesScreen';
 
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -27,6 +28,7 @@ export default function App() {
         <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Map" component={MapScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Favorites" component={FavoritesScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
