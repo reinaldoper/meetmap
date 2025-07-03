@@ -2,20 +2,19 @@
 ## MeetMap é um app mobile em React Native (CLI) para conectar pessoas próximas via geolocalização, exibir um mapa com usuários, permitir favoritos e interação social. Aplicação usa o firebase como repositório dos dados, usuário faz inscrição com nome, email, senha e foto, a idéia é centralizar todos os usuarios em uma tela geral onde cada usuário podem ver a localização de cada m, podendo favoritar.
 
 
----
+
+1. 🚀 Tecnologias e Bibliotecas
 
 
-
-🚀 Tecnologias e Bibliotecas
-✅ React Native CLI (TypeScript)
-✅ Firebase (Auth + Firestore)
-✅ react-native-maps – exibe mapa e marcadores
-✅ @rneui/themed – Material UI compatível para React Native
-✅ react-native-image-picker – seleção de foto local
-✅ react-native-permissions – permissões de geolocalização
-✅ react-native-community/geolocation – localização do dispositivo
-✅ react-navigation – navegação entre telas
-✅ Haversine Formula – cálculo de distância geográfica
+- ✅ React Native CLI (TypeScript)
+- ✅ Firebase (Auth + Firestore)
+- ✅ react-native-maps – exibe mapa e marcadores
+- ✅ @rneui/themed – Material UI compatível para React Native
+- ✅ react-native-image-picker – seleção de foto local
+- ✅ react-native-permissions – permissões de geolocalização
+- ✅ react-native-community/geolocation – localização do dispositivo
+- ✅ react-navigation – navegação entre telas
+- ✅ Haversine Formula – cálculo de distância geográfica
 
 
 ---
@@ -96,16 +95,18 @@ android/app/build/outputs/apk/release/app-release.apk
 ---
 
 
-🗺 Funcionalidades
-✅ Tela de Splash com redirecionamento automático se usuário estiver logado
-✅ Cadastro de usuário com foto local
-✅ Login/Logout via Firebase
-✅ Mapa com localização do usuário + outros usuários
-✅ Exibição de distância entre usuários
-✅ Favoritar usuários
-✅ Tela de favoritos para gerenciar favoritos
-✅ UI moderna com Material UI (RNE UI Themed)
-✅ Validação de email e senhas
+2. 🗺 Funcionalidades
+
+
+- ✅ Tela de Splash com redirecionamento automático se usuário estiver logado
+- ✅ Cadastro de usuário com foto local
+- ✅ Login/Logout via Firebase
+- ✅ Mapa com localização do usuário + outros usuários
+- ✅ Exibição de distância entre usuários
+- ✅ Favoritar usuários
+- ✅ Tela de favoritos para gerenciar favoritos
+- ✅ UI moderna com Material UI (RNE UI Themed)
+- ✅ Validação de email e senhas
 
 
 ---
