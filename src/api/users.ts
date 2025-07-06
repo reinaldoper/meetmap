@@ -1,4 +1,4 @@
-import {auth, firestore} from './firebase';
+import {auth, firestore, uploadPhoto} from './firebase';
 
 export async function register(
   email: string,
@@ -12,6 +12,7 @@ export async function register(
     email,
     password,
   );
+  const downloadURL = await uploadPhoto(photoURL);
 
   try {
     await firestore()
@@ -19,7 +20,7 @@ export async function register(
       .doc(userCredential.user.uid)
       .set({
         name: name,
-        photoURL: photoURL,
+        photoURL: downloadURL,
         email: email,
         uid: userCredential.user.uid,
         ...(typeof latitude === 'number' && typeof longitude === 'number'

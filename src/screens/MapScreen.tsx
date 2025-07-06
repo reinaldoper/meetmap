@@ -99,56 +99,63 @@ export default function MapScreen({navigation}: Props) {
               mapType="standard"
               customMapStyle={[]}>
               <UrlTile
-                urlTemplate="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                urlTemplate="https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 maximumZ={19}
                 flipY={false}
               />
 
-              {users.map(user => {
-                let distanceStr = '';
-                if (myLocation && user.location) {
-                  const distance = haversineDistance(
-                    myLocation.latitude,
-                    myLocation.longitude,
-                    user.location.latitude,
-                    user.location.longitude,
-                  );
-                  distanceStr = `${distance.toFixed(2)} km de distância`;
-                }
+              {users
+                .filter(
+                  user =>
+                    user.location &&
+                    typeof user.location.latitude === 'number' &&
+                    typeof user.location.longitude === 'number',
+                )
+                .map(user => {
+                  let distanceStr = '';
+                  if (myLocation && user.location) {
+                    const distance = haversineDistance(
+                      myLocation.latitude,
+                      myLocation.longitude,
+                      user.location.latitude,
+                      user.location.longitude,
+                    );
+                    distanceStr = `${distance.toFixed(2)} km de distância`;
+                  }
 
-                return (
-                  <Marker
-                    key={user.uid}
-                    coordinate={{
-                      latitude: user.location.latitude,
-                      longitude: user.location.longitude,
-                    }}>
-                    <Callout>
-                      <View style={styles.callout}>
-                        <Avatar
-                          source={
-                            user.photoURL
-                              ? {uri: user.photoURL}
-                              : require('../assets/avatar.jpeg')
-                          }
-                          rounded
-                          size={60}
-                          containerStyle={styles.avatar}
-                        />
-                        <Text style={styles.name}>{user.name}</Text>
-                        <Text>{user.email}</Text>
-                        <Text>{distanceStr}</Text>
-                        <Button
-                          title="Favoritar"
-                          onPress={() => handleFavorite(user.uid)}
-                          containerStyle={styles.favoriteButton}
-                          size="sm"
-                        />
-                      </View>
-                    </Callout>
-                  </Marker>
-                );
-              })}
+                  return (
+                    <Marker
+                      key={user.uid || String(Math.random())}
+                      coordinate={{
+                        latitude: user.location.latitude,
+                        longitude: user.location.longitude,
+                      }}>
+                      <Callout>
+                        <View style={styles.callout}>
+                          <Avatar
+                            source={
+                              user.photoURL?.startsWith('http')
+                                ? {uri: user.photoURL}
+                                : require('../assets/avatar.jpeg')
+                            }
+                            rounded
+                            size={60}
+                            containerStyle={styles.avatar}
+                          />
+                          <Text style={styles.name}>{user.name}</Text>
+                          <Text>{user.email}</Text>
+                          <Text>{distanceStr}</Text>
+                          <Button
+                            title="Favoritar"
+                            onPress={() => handleFavorite(user.uid)}
+                            containerStyle={styles.favoriteButton}
+                            size="sm"
+                          />
+                        </View>
+                      </Callout>
+                    </Marker>
+                  );
+                })}
             </MapView>
           ) : (
             <View style={styles.loadingContainer}>
