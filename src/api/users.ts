@@ -18,11 +18,11 @@ export async function register(
       .collection('users')
       .doc(userCredential.user.uid)
       .set({
-        name,
-        photoURL,
-        email,
+        name: name,
+        photoURL: photoURL,
+        email: email,
         uid: userCredential.user.uid,
-        ...(latitude !== 0 && longitude !== 0
+        ...(typeof latitude === 'number' && typeof longitude === 'number'
           ? {location: {latitude, longitude}}
           : {}),
         createdAt: firestore.FieldValue.serverTimestamp(),
