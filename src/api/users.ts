@@ -12,7 +12,13 @@ export async function register(
     email,
     password,
   );
-  const downloadURL = await uploadPhoto(photoURL);
+  let downloadURL = '';
+
+  if (photoURL && photoURL.startsWith('file://')) {
+    downloadURL = await uploadPhoto(photoURL);
+  } else {
+    downloadURL = photoURL || '';
+  }
 
   try {
     await firestore()
