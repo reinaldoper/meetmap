@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -7,13 +7,15 @@ import {
   View,
   ImageBackground,
   Text,
+  PermissionsAndroid,
+  Platform,
 } from 'react-native';
-import { Input, Button, Card, Icon } from '@rneui/themed';
-import { register } from '../api/users';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../services/types';
+import {Input, Button, Card, Icon} from '@rneui/themed';
+import {register, CurrentUser} from '../api/users';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {RootStackParamList} from '../services/types';
 import verifyEmail from '../services/verifyEmail';
-import { launchImageLibrary } from 'react-native-image-picker';
+import {launchImageLibrary} from 'react-native-image-picker';
 import LinearGradient from 'react-native-linear-gradient';
 
 type RegisterScreenNavigationProp = StackNavigationProp<
@@ -25,14 +27,50 @@ type Props = {
   navigation: RegisterScreenNavigationProp;
 };
 
-export default function RegisterScreen({ navigation }: Props) {
+const requestGalleryPermission = async () => {
+  if (Platform.OS !== 'android') {
+    return true;
+  }
+
+  try {
+    let permission;
+
+    if (Platform.Version >= 33) {
+      permission = PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES;
+    } else {
+      permission = PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
+    }
+
+    const granted = await PermissionsAndroid.request(permission);
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      return true;
+    } else {
+      Alert.alert(
+        'Permissão negada',
+        'É necessário permitir acesso às fotos para selecionar a imagem.',
+      );
+      return false;
+    }
+  } catch (err) {
+    console.warn(err);
+    Alert.alert('Erro', 'Erro ao solicitar permissão para acessar fotos.');
+    return false;
+  }
+};
+
+export default function RegisterScreen({navigation}: Props) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [photoURL, setPhotoURL] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const pickImage = () => {
+  const pickImage = async () => {
+    const granted = await requestGalleryPermission();
+    if (!granted) {
+      return;
+    }
+
     launchImageLibrary(
       {
         mediaType: 'photo',
@@ -40,22 +78,40 @@ export default function RegisterScreen({ navigation }: Props) {
         maxHeight: 512,
         quality: 0.8,
       },
-      (response) => {
+      response => {
+        console.log('Picker response:', JSON.stringify(response, null, 2));
+
         if (response.didCancel) {
           console.log('User cancelled image picker');
-        } else if (response.errorMessage) {
+        } else if (response.errorCode) {
           console.log('ImagePicker Error: ', response.errorMessage);
-          Alert.alert('Erro', response.errorMessage);
+          Alert.alert(
+            'Erro',
+            response.errorMessage || 'Erro ao selecionar imagem.',
+          );
         } else if (response.assets && response.assets.length > 0) {
-          setPhotoURL(response.assets[0].uri || '');
+          const asset = response.assets[0];
+          if (asset.uri) {
+            setPhotoURL(asset.uri);
+          } else {
+            Alert.alert('Erro', 'Imagem selecionada inválida.');
+          }
+        } else {
+          Alert.alert('Erro', 'Nenhuma imagem selecionada.');
         }
-      }
+      },
     );
   };
 
   const handleRegister = async () => {
     try {
       setLoading(true);
+      const userCurrent = CurrentUser();
+      if (userCurrent) {
+        Alert.alert('Você já está logado. Faça logout para se registrar novamente.');
+        navigation.navigate('Login');
+        return;
+      }
       if (!verifyEmail(email)) {
         Alert.alert('Email inválido. Por favor, verifique o formato do email.');
         return;
@@ -65,7 +121,7 @@ export default function RegisterScreen({ navigation }: Props) {
         return;
       }
       const user = await register(email, password, name, photoURL);
-      if (user.displayName) {
+      if (user) {
         Alert.alert('Cadastro realizado com sucesso!');
         navigation.navigate('Login');
       }
@@ -84,12 +140,10 @@ export default function RegisterScreen({ navigation }: Props) {
       }}
       style={styles.background}
       resizeMode="cover"
-      blurRadius={2}
-    >
+      blurRadius={2}>
       <LinearGradient
         colors={['rgba(0,0,0,0.6)', 'rgba(255,77,109,0.4)']}
-        style={styles.gradient}
-      >
+        style={styles.gradient}>
         <ScrollView contentContainerStyle={styles.container}>
           <Card containerStyle={styles.card}>
             <View style={styles.header}>
@@ -108,7 +162,7 @@ export default function RegisterScreen({ navigation }: Props) {
               placeholder="Nome"
               value={name}
               onChangeText={setName}
-              leftIcon={{ type: 'material', name: 'person', color: '#ff4d6d' }}
+              leftIcon={{type: 'material', name: 'person', color: '#ff4d6d'}}
               inputStyle={styles.colorInput}
               placeholderTextColor="#fff"
             />
@@ -118,7 +172,7 @@ export default function RegisterScreen({ navigation }: Props) {
               onChangeText={setEmail}
               keyboardType="email-address"
               autoCapitalize="none"
-              leftIcon={{ type: 'material', name: 'email', color: '#ff4d6d' }}
+              leftIcon={{type: 'material', name: 'email', color: '#ff4d6d'}}
               inputStyle={styles.colorInput}
               placeholderTextColor="#fff"
             />
@@ -127,7 +181,7 @@ export default function RegisterScreen({ navigation }: Props) {
               value={password}
               onChangeText={setPassword}
               secureTextEntry
-              leftIcon={{ type: 'material', name: 'lock', color: '#ff4d6d' }}
+              leftIcon={{type: 'material', name: 'lock', color: '#ff4d6d'}}
               inputStyle={styles.colorInput}
               placeholderTextColor="#fff"
             />
@@ -146,10 +200,7 @@ export default function RegisterScreen({ navigation }: Props) {
 
             {photoURL ? (
               <View style={styles.view}>
-                <Image
-                  source={{ uri: photoURL }}
-                  style={styles.image}
-                />
+                <Image source={{uri: photoURL}} style={styles.image} />
               </View>
             ) : null}
 
