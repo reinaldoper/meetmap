@@ -78,6 +78,18 @@ npm run start
 npx react-native run-android
 ```
 
+---
+
+- Telas da aplicação:
+
+![login](./src/assets/loginMeet.png)
+
+![maps](./src/assets/homeMeet.png)
+
+
+---
+
+
 📱 Gerar APK
 Gere o APK release:
 

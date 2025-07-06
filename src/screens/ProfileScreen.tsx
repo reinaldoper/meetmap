@@ -1,9 +1,10 @@
 import React, {useEffect, useState} from 'react';
-import {View, StyleSheet, Alert, ScrollView} from 'react-native';
+import {View, StyleSheet, Alert, ScrollView, ImageBackground} from 'react-native';
 import {Avatar, Text, Button, Card} from '@rneui/themed';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList, User} from '../services/types';
-import {CurrentUser, CurrentUserUuid, logout} from '../api/users';
+import {CurrentUser, CurrentUserUuid} from '../api/users';
+import LinearGradient from 'react-native-linear-gradient';
 
 type ProfileScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -40,7 +41,6 @@ export default function ProfileScreen({navigation}: Props) {
 
   const handleLogout = async () => {
     try {
-      await logout();
       navigation.navigate('Home');
     } catch (error: any) {
       console.log(error);
@@ -49,28 +49,44 @@ export default function ProfileScreen({navigation}: Props) {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Card>
-        <Card.Title>Meu Perfil</Card.Title>
-        <Card.Divider />
-        {userData ? (
-          <>
-            <View style={styles.center}>
-              <Avatar source={{uri: userData.photoURL}} rounded size="xlarge" />
-              <Text style={styles.name}>{userData.name}</Text>
-              <Text>{userData.email}</Text>
-            </View>
-          </>
-        ) : (
-          <Text>Carregando...</Text>
-        )}
-        <Button
-          title="Sair"
-          onPress={handleLogout}
-          containerStyle={styles.logoutButton}
-        />
-      </Card>
-    </ScrollView>
+    <ImageBackground
+      source={{
+        uri: 'https://images.unsplash.com/photo-1518458028785-8fbcd101ebb9?fit=crop&w=800&q=80',
+      }}
+      style={styles.background}
+      resizeMode="cover"
+      blurRadius={2}>
+      <LinearGradient
+        colors={['rgba(0,0,0,0.6)', 'rgba(255,77,109,0.4)']}
+        style={styles.gradient}>
+        <ScrollView contentContainerStyle={styles.container}>
+          <Card>
+            <Card.Title>Meu Perfil</Card.Title>
+            <Card.Divider />
+            {userData ? (
+              <>
+                <View style={styles.center}>
+                  <Avatar
+                    source={{uri: userData.photoURL}}
+                    rounded
+                    size="xlarge"
+                  />
+                  <Text style={styles.name}>{userData.name}</Text>
+                  <Text>{userData.email}</Text>
+                </View>
+              </>
+            ) : (
+              <Text>Carregando...</Text>
+            )}
+            <Button
+              title="Home"
+              onPress={handleLogout}
+              containerStyle={styles.logoutButton}
+            />
+          </Card>
+        </ScrollView>
+      </LinearGradient>
+    </ImageBackground>
   );
 }
 
@@ -79,6 +95,13 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     padding: 16,
+  },
+  background: {
+    flex: 1,
+  },
+  gradient: {
+    flex: 1,
+    justifyContent: 'center',
   },
   center: {
     alignItems: 'center',

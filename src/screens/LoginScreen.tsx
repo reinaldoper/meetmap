@@ -1,10 +1,16 @@
-
 import React, { useState } from 'react';
-import { ScrollView } from 'react-native';
-import { Input, Button, Card } from '@rneui/themed';
+import {
+  ScrollView,
+  Alert,
+  StyleSheet,
+  ImageBackground,
+  View,
+  Text,
+} from 'react-native';
+import { Input, Button, Card, Icon } from '@rneui/themed';
+import LinearGradient from 'react-native-linear-gradient';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../services/types';
-import { Alert, StyleSheet } from 'react-native';
 import { login } from '../api/users';
 import verifyEmail from '../services/verifyEmail';
 
@@ -47,53 +53,120 @@ export default function LoginScreen({ navigation }: Props) {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Card>
-        <Card.Title>Login</Card.Title>
-        <Card.Divider />
+    <ImageBackground
+      source={{
+        uri: 'https://images.unsplash.com/photo-1518458028785-8fbcd101ebb9?fit=crop&w=800&q=80',
+      }}
+      style={styles.background}
+      resizeMode="cover"
+      blurRadius={2}
+    >
+      <LinearGradient
+        colors={['rgba(0,0,0,0.6)', 'rgba(255,77,109,0.4)']}
+        style={styles.gradient}
+      >
+        <ScrollView contentContainerStyle={styles.container}>
+          <Card containerStyle={styles.card}>
+            <View style={styles.header}>
+              <Icon
+                name="heart"
+                type="font-awesome"
+                color="#ff4d6d"
+                size={36}
+              />
+              <Text style={styles.title}>Bem-vindo ao LoveMatch</Text>
+            </View>
 
-        <Input
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          leftIcon={{ type: 'material', name: 'email' }}
-        />
+            <Card.Divider />
 
-        <Input
-          placeholder="Senha"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          leftIcon={{ type: 'material', name: 'lock' }}
-        />
+            <Input
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              leftIcon={{ type: 'material', name: 'email', color: '#ff4d6d' }}
+              inputStyle={styles.colorInput}
+              placeholderTextColor="#fff"
+            />
 
-        <Button
-          title="Entrar"
-          onPress={handleLogin}
-          loading={loading}
-          containerStyle={styles.bottom}
-        />
+            <Input
+              placeholder="Senha"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              leftIcon={{ type: 'material', name: 'lock', color: '#ff4d6d' }}
+              inputStyle={styles.colorInput}
+              placeholderTextColor="#fff"
+            />
 
-        <Button
-          title="Criar conta"
-          type="outline"
-          onPress={() => navigation.navigate('Register')}
-        />
-      </Card>
-    </ScrollView>
+            <Button
+              title="Entrar"
+              onPress={handleLogin}
+              loading={loading}
+              containerStyle={styles.bottom}
+              buttonStyle={styles.button}
+              icon={{
+                name: 'heart',
+                type: 'font-awesome',
+                color: 'white',
+                size: 20,
+              }}
+            />
+
+            <Button
+              title="Criar conta"
+              type="outline"
+              onPress={() => navigation.navigate('Register')}
+              titleStyle={styles.colorButton}
+              buttonStyle={styles.button}
+            />
+          </Card>
+        </ScrollView>
+      </LinearGradient>
+    </ImageBackground>
   );
 }
 
-
 const styles = StyleSheet.create({
-  container: {
+  background: {
     flex: 1,
+  },
+  gradient: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  container: {
+    flexGrow: 1,
     justifyContent: 'center',
     padding: 16,
   },
+  card: {
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 16,
+    borderWidth: 0,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  title: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginTop: 8,
+  },
   bottom: {
     marginBottom: 12,
+  },
+  button: {
+    backgroundColor: '#ff4d6d',
+    borderRadius: 30,
+  },
+  colorInput: {
+    color: '#fff',
+  },
+  colorButton: {
+    backgroundColor: '#ff4d6d',
   },
 });

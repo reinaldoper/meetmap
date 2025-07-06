@@ -20,6 +20,7 @@ export async function register(
       .set({
         name,
         photoURL,
+        email,
         uid: userCredential.user.uid,
         ...(latitude !== 0 && longitude !== 0
           ? {location: {latitude, longitude}}
@@ -99,6 +100,10 @@ export async function getUsers() {
       ...data,
       uid: doc.id,
       location: data.location || null,
+      email: data.email || '',
+      photoURL: data.photoURL || '',
+      name: data.name || '',
+      createdAt: data.createdAt ? data.createdAt.toDate() : null,
     };
   }).filter(userData => userData.uid !== user?.uid);
 }

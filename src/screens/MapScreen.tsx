@@ -1,6 +1,14 @@
 import React, {useEffect, useState} from 'react';
-import {View, StyleSheet, Alert, Text, Dimensions} from 'react-native';
-import MapView, {Marker, Callout} from 'react-native-maps';
+import {
+  View,
+  StyleSheet,
+  Alert,
+  Text,
+  Dimensions,
+  ActivityIndicator,
+  ImageBackground,
+} from 'react-native';
+import MapView, {Marker, Callout, UrlTile} from 'react-native-maps';
 import {getUsers, addFavorite, updateUserLocation} from '../api/users';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../services/types';
@@ -9,6 +17,7 @@ import Geolocation from '@react-native-community/geolocation';
 import {Avatar, Button} from '@rneui/themed';
 import {User} from '../services/types';
 import {haversineDistance} from '../services/funcs';
+import LinearGradient from 'react-native-linear-gradient';
 
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 
@@ -42,25 +51,13 @@ export default function MapScreen({navigation}: Props) {
           },
           error => {
             console.log(error);
-            Alert.alert('Erro ao pegar localização:', error.message);
+            Alert.alert('Erro ao pegar localização:');
           },
           {enableHighAccuracy: true},
         );
-        const snapshot = await getUsers();
-        const usersData: User[] = [];
-        snapshot.forEach(doc => {
-          const data = doc as User;
-          if (
-            data.location &&
-            typeof data.location.latitude === 'number' &&
-            typeof data.location.longitude === 'number' &&
-            data.location.latitude !== 0 &&
-            data.location.longitude !== 0
-          ) {
-            usersData.push(data);
-          }
-        });
-        setUsers(usersData);
+
+        const usersArray = await getUsers();
+        setUsers(usersArray);
       } catch (e) {
         console.log(e);
       }
@@ -77,68 +74,98 @@ export default function MapScreen({navigation}: Props) {
   };
 
   return (
-    <View style={styles.container}>
-      {myLocation ? (
-        <MapView
-          style={styles.map}
-          initialRegion={{
-            latitude: myLocation.latitude,
-            longitude: myLocation.longitude,
-            latitudeDelta: 0.05,
-            longitudeDelta: 0.05,
-          }}
-          showsUserLocation={true}>
-          {users.map(user => {
-            let distanceStr = '';
-            if (myLocation && user.location) {
-              const distance = haversineDistance(
-                myLocation.latitude,
-                myLocation.longitude,
-                user.location.latitude,
-                user.location.longitude,
-              );
-              distanceStr = `${distance.toFixed(2)} km de distância`;
-            }
+    <ImageBackground
+      source={{
+        uri: 'https://images.unsplash.com/photo-1518458028785-8fbcd101ebb9?fit=crop&w=800&q=80',
+      }}
+      style={styles.background}
+      resizeMode="cover"
+      blurRadius={2}>
+      <LinearGradient
+        colors={['rgba(0,0,0,0.6)', 'rgba(255,77,109,0.4)']}
+        style={styles.gradient}>
+        <View style={styles.container}>
+          {myLocation && users.length > 0 ? (
+            <MapView
+              style={styles.map}
+              initialRegion={{
+                latitude: myLocation.latitude,
+                longitude: myLocation.longitude,
+                latitudeDelta: 0.05,
+                longitudeDelta: 0.05,
+              }}
+              showsUserLocation={true}
+              loadingEnabled={true}
+              mapType="standard"
+              customMapStyle={[]}>
+              <UrlTile
+                urlTemplate="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                maximumZ={19}
+                flipY={false}
+              />
 
-            return (
-              <Marker
-                key={user.uid}
-                coordinate={{
-                  latitude: user.location.latitude,
-                  longitude: user.location.longitude,
-                }}>
-                <Callout>
-                  <View style={styles.callout}>
-                    <Avatar
-                      source={{uri: user.photoURL}}
-                      rounded
-                      size={60}
-                      containerStyle={styles.avatar}
-                    />
-                    <Text style={styles.name}>{user.name}</Text>
-                    <Text>{user.email}</Text>
-                    <Text>{distanceStr}</Text>
-                    <Button
-                      title="Favoritar"
-                      onPress={() => handleFavorite(user.uid)}
-                      containerStyle={styles.favoriteButton}
-                      size="sm"
-                    />
-                  </View>
-                </Callout>
-              </Marker>
-            );
-          })}
-        </MapView>
-      ) : (
-        <Text style={styles.text}>Carregando mapa...</Text>
-      )}
-      <Button
-        title="Voltar para Home"
-        type="outline"
-        onPress={() => navigation.navigate('Home')}
-      />
-    </View>
+              {users.map(user => {
+                let distanceStr = '';
+                if (myLocation && user.location) {
+                  const distance = haversineDistance(
+                    myLocation.latitude,
+                    myLocation.longitude,
+                    user.location.latitude,
+                    user.location.longitude,
+                  );
+                  distanceStr = `${distance.toFixed(2)} km de distância`;
+                }
+
+                return (
+                  <Marker
+                    key={user.uid}
+                    coordinate={{
+                      latitude: user.location.latitude,
+                      longitude: user.location.longitude,
+                    }}>
+                    <Callout>
+                      <View style={styles.callout}>
+                        <Avatar
+                          source={
+                            user.photoURL
+                              ? {uri: user.photoURL}
+                              : require('../assets/avatar.jpeg')
+                          }
+                          rounded
+                          size={60}
+                          containerStyle={styles.avatar}
+                        />
+                        <Text style={styles.name}>{user.name}</Text>
+                        <Text>{user.email}</Text>
+                        <Text>{distanceStr}</Text>
+                        <Button
+                          title="Favoritar"
+                          onPress={() => handleFavorite(user.uid)}
+                          containerStyle={styles.favoriteButton}
+                          size="sm"
+                        />
+                      </View>
+                    </Callout>
+                  </Marker>
+                );
+              })}
+            </MapView>
+          ) : (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#2196F3" />
+              <Text style={styles.loadingText}>
+                Você ainda não tem amigos...
+              </Text>
+            </View>
+          )}
+          <Button
+            title="Voltar para Home"
+            type="outline"
+            onPress={() => navigation.navigate('Home')}
+          />
+        </View>
+      </LinearGradient>
+    </ImageBackground>
   );
 }
 
@@ -146,9 +173,27 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  background: {
+    flex: 1,
+  },
+  gradient: {
+    flex: 1,
+    justifyContent: 'center',
+  },
   map: {
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#333',
+    textAlign: 'center',
   },
   avatar: {
     marginBottom: 8,
@@ -166,6 +211,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   text: {
+    maxHeight: 100,
     fontSize: 16,
     textAlign: 'center',
     marginVertical: 8,
