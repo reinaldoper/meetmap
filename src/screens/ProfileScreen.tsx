@@ -67,7 +67,7 @@ export default function ProfileScreen({navigation}: Props) {
               <>
                 <View style={styles.center}>
                   <Avatar
-                    source={{uri: userData.photoURL}}
+                    source={{uri: userData.photoURL || require('../assets/avatar.jpeg')}}
                     rounded
                     size="xlarge"
                   />
