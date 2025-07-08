@@ -8,17 +8,22 @@ export async function register(
   latitude?: number,
   longitude?: number,
 ) {
+  let downloadURL = '';
+
+  if (photoURL && photoURL.startsWith('file://')) {
+    try {
+      downloadURL = await uploadPhoto(photoURL);
+    } catch (error) {
+      console.error('Erro ao fazer upload da imagem:', error);
+      throw new Error('Erro ao fazer upload da imagem. Tente novamente.');
+    }
+  } else {
+    downloadURL = photoURL || '';
+  }
   const userCredential = await auth().createUserWithEmailAndPassword(
     email,
     password,
   );
-  let downloadURL = '';
-
-  if (photoURL && photoURL.startsWith('file://')) {
-    downloadURL = await uploadPhoto(photoURL);
-  } else {
-    downloadURL = photoURL || '';
-  }
 
   try {
     await firestore()
@@ -58,18 +63,15 @@ export async function updateUserLocation(latitude: number, longitude: number) {
   }
 
   try {
-    await firestore()
-      .collection('users')
-      .doc(user.uid)
-      .set(
-        {
-          location: {
-            latitude,
-            longitude,
-          },
+    await firestore().collection('users').doc(user.uid).set(
+      {
+        location: {
+          latitude,
+          longitude,
         },
-        { merge: true }
-      );
+      },
+      {merge: true},
+    );
   } catch (error) {
     console.error('Erro ao atualizar localização:', error);
     throw error;
@@ -101,18 +103,20 @@ export async function getUsers() {
   const user = auth().currentUser;
   const snapshot = await firestore().collection('users').get();
 
-  return snapshot.docs.map(doc => {
-    const data = doc.data();
-    return {
-      ...data,
-      uid: doc.id,
-      location: data.location || null,
-      email: data.email || '',
-      photoURL: data.photoURL || '',
-      name: data.name || '',
-      createdAt: data.createdAt ? data.createdAt.toDate() : null,
-    };
-  }).filter(userData => userData.uid !== user?.uid);
+  return snapshot.docs
+    .map(doc => {
+      const data = doc.data();
+      return {
+        ...data,
+        uid: doc.id,
+        location: data.location || null,
+        email: data.email || '',
+        photoURL: data.photoURL || '',
+        name: data.name || '',
+        createdAt: data.createdAt ? data.createdAt.toDate() : null,
+      };
+    })
+    .filter(userData => userData.uid !== user?.uid);
 }
 
 export function CurrentUser() {
